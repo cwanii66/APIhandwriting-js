@@ -187,4 +187,201 @@ renderMap( sosoMap );
 
 // 1.3.1 封装数据
 
+// 通过函数创建作用域
+var myObject = (function() {
+    var __name = 'sven'; // private 变量
+    return {
+        getName() {
+            return __name;  //  公开方法
+        }
+    }
+})();
 
+console.log(myObject.getName()); // sven
+console.log(myObject.__name); // undefined
+// es6 还可以用Symbol创建私有属性
+
+// 1.3.2封装实现
+
+/**
+ * 拿迭代器来说明，迭代器的作用是在不暴露一个聚合对象的内部表示的前提下，
+ * 提供一种方式来顺序访问这个聚合对象。我们编写了一个 each 函数，
+ * 它的作用就是遍历一个聚合对象，使用这个 each 函数的人不用关心它的内部是怎样实现的，
+ * 只要它提供的功能正确便可以。即使 each 函数修改了内部源代码，
+ * 只要对外的接口或者调用方式没有变化，用户就不用关心它内部实现的改变。
+ */
+
+
+// 1.3.3 封装类型
+
+// 1.3.4 封装变化  !对于设计模式异常重要
+
+
+// 1.4 原型模式和基于原型继承的JavaScript对象系统
+
+// 1.4.1 use clone
+
+// 原型模式通过克隆创建对象
+
+class Plane {
+    constructor() {
+        this.blood = 100;
+        this.attackLevel = 1;
+        this.defenseLevel = 1;
+    }
+}
+
+let plane = new Plane();
+
+plane.blood = 500;
+plane.attackLevel = 10;
+plane.defenseLevel = 10;
+
+let planeBro = Object.create(plane, {
+    'name': {
+        get() {
+            return 'planeBro'
+        },
+    }
+});
+
+console.log(planeBro);
+
+// 不支持的浏览器
+Object.create = Object.create || function(obj) {
+    let F = function() {};
+    F.prototype = obj;
+
+    return new F();
+}
+
+
+// 1.4.2 克隆是创建对象的手段
+
+// 1.4.4 原型编程范型的一些规则
+/**
+ * 所有数据都是对象。
+ * 要得到一个对象，并不是通过实例化类，而是找到一个对象作为原型并克隆它。
+ * 对象会记住它的原型。
+ * 如果对象无法响应某个请求，它会吧这个请求委托给自己的原型。
+ */
+
+
+// 1.4.5 JavaScript中的原型继承
+
+//1. 所有数据都是对象
+
+const obj1 = new Object();
+const obj2 = {};
+
+console.log(Object.getPrototypeOf(obj1) === Object.prototype) // true
+console.log(Object.getPrototypeOf(obj2) === Object.prototype) // true
+
+//2. 要得到一个对象，并不是通过实例化类，而是找到一个对象作为原型并克隆它。
+
+function Person(name) {
+    this.name = name;
+};
+
+Person.prototype.getName = function() {
+    return this.name;
+};
+
+let a = new Person( 'sven' );
+
+console.log( a.name ); // 输出：sven
+console.log( a.getName() ); // 输出：sven
+console.log( Object.getPrototypeOf( a ) === Person.prototype ); // 输出：true
+
+/**在这里 Person 并不是类，而是函数构造器，JavaScript 的函数既可以作为普通函数被调用，
+ * 也可以作为构造器被调用。当使用 new 运算符来调用函数时，此时的函数就是一个构造器。 用
+ * new 运算符来创建对象的过程，实际上也只是先克隆 Object.prototype 对象，
+ * 再进行一些其他额外操作的过程。 */
+
+//理解 new运算过程
+let objectFactory = function() {
+    let obj = new Object(), //从Object.prototype上克隆一个空的对象
+        Constructor = [].shift.call(arguments); //取得外部传入的构造器
+
+        obj.__proto__ = Constructor.prototype; // 指向正确原型
+        let ret = Constructor.apply(obj, arguments); //借用外部传入的构造器给obj设置属性
+        
+        return typeof ret === 'object' ? ret : obj; //确保构造器总是返回一个对象
+};
+
+let a = objectFactory(Person, 'sven');
+
+console.log(a.name);
+console.log(a.getName());
+console.log(Object.getPrototypeOf(a) === Person.prototype); // true
+
+//下面两行等价
+let a = objectFactory(A, 'sven');
+let a = new A('sven');
+
+
+//3.对象会记住它的原型
+
+let a = new Object();
+console.log(a.__proto__ === Object.prototype);  //true
+
+/**
+ * 实际上，__proto__就是对象跟“对象构造器的原型”联系起来的纽带。
+ */
+
+//4. 如果对象无法响应某个请求，他会把这个请求委托给它的构造器原型--> 形成天然的继承链
+
+let obj = {
+    name: 'sven'
+}
+let A = function() {};
+A.prototype = obj;
+
+let a = new A();
+console.log(a.name); //sven
+
+/**
+ * 首先，尝试遍历对象 a 中的所有属性，但没有找到 name 这个属性。
+ * 查找 name 属性的这个请求被委托给对象 a 的构造器的原型，它被 a.__proto__ 记录着并且指向 A.prototype，而 A.prototype 被设置为对象 obj。
+ * 在对象 obj 中找到了 name 属性，并返回它的值。
+ */
+
+// 模拟实现继承效果
+
+let A = function() {};
+A.prototype = {name: 1};
+
+let B = function() {};
+B.prototype = new A();
+
+let b = new B();
+console.log(b.name); //name
+
+//继承总是发生在对象与对象之间
+
+//1.4.6 原型继承的未来
+
+// ECMAScript带来了新的Class语法。 但还是基于原型机制
+class Animal {
+    constructor(name) {
+        this.name = name;
+    }
+    getName() {
+        return this.name;
+    }
+}
+
+class Dog extends Animal {
+    constructor(name) {
+        super(name);
+    }
+    speak() {
+        return 'woof'
+    }
+}
+
+let dog = new Dog('Scamp');
+console.log(dog.getName + 'say' + dog.speak());
+
+//1.4.6 summary
+// 原型模式！JavaScript通过原型来实现OOP
