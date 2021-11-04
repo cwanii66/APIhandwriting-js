@@ -9,7 +9,7 @@ func.apply(null, [1,2,3]);
 
 //es6 直接用扩展运算符
 
-// call 船夫的参数数量不固定，第 2+ 个参数都会传入函数
+// call 传入的参数数量不固定，第 2+ 个参数都会传入函数
 
 let func = function(a,b) {
     alert (this === window);
