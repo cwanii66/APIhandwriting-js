@@ -211,3 +211,129 @@ alert ( cost() ); // 求值并输出：600
 
 
 // 2. uncurry
+
+(function() {
+    Array.prototype.push.call(arguments, 4);
+    console.log( arguments );   // output: [1, 2, 3, 4]
+})(1, 2, 3);
+
+/**
+ * 在我们的预期中，Array.prototype 上的方法原本只能用来操作 array 对象。
+ * 但用 call 和 apply可以把任意对象当作 this 传入某个方法，
+ * 这样一来，方法中用到 this 的地方就不再局限于原来规定的对象，而是加以泛化并得到更广的适用性。 
+ */
+
+// 把泛化this的过程提取出来
+
+Function.prototype.uncurrying = function() {
+    let self = this;  // self 此时是 Array.prototype.push
+    return function fn() {
+        let obj = Array.prototype.shift.call( arguments );
+        /**
+         * obj 是 { 传入的对象， 即要绑定的this }
+         */
+        return self.apply(obj, arguments);
+    };
+};
+
+// 把Array.prototype.push.call 转化为一个通用函数
+let push = Array.prototype.push.uncurrying();
+
+(function() {
+    push(arguments, 4);
+    console.log(arguments);
+})(1, 2, 3);
+
+/**
+ * 我们还可以一次性地把 Array.prototype 上的方法“复制”到 array 对象上，
+ * 同样这些方法可操作的对象也不仅仅只是 array 对象：
+ */
+for (let i = 0, fn, arr = ['push', 'shift', 'forEach']; fn = arr[i++]; ) {
+    Array[ fn ] = Array.prototype[ fn ].uncurrying();
+}
+
+let obj = {
+    length: 3,
+    0: 1,
+    1: 2,
+    2: 3
+}
+
+Array.push(obj, 4);
+
+let first = Array.shift( obj );
+console.log( first ); // 1
+
+Array.forEach( obj, (value, index) => {
+    console.log(value);
+})
+
+// uncurrying另一种实现方式
+Function.prototype.uncurrying = function() {
+    let self = this;
+    return function() {
+        return Function.prototype.call.apply(self, arguments);
+        // Function.prototype.call.apply  用于不确定参数长度时指定内部this
+        // 1. 为call显式绑定self
+        // 2. 对call而言，self是它的执行对象，即调用call的this，self.call()
+        // 3. 执行apply后，讲可迭代对象传给apply的调用方，self.call(arguments[0], arguments[1], ...)
+    }
+}
+
+// 3.函数节流
+
+/**
+ * 函数有可能被非常频繁地调用，而造成大的性能问题。下面将列举一些这样的场景。
+ * 1. window.onresize 事件
+ * 2. mousemove事件
+ * 3. 上传进度
+ * ...
+ */
+
+// 原理
+// 这就需要我们按时间段来忽略掉一些事件请求，比如确保在 500ms 内只打印一次。很显然，我们可以借助 setTimeout 来完成这件事情。
+
+/**
+ * 关于函数节流的代码实现有许多种，下面的 throttle 函数的原理是，
+ * 将即将被执行的函数用setTimeout 延迟一段时间执行。
+ * 如果该次延迟执行还没有完成，则忽略接下来调用该函数的请求。
+ * throttle 函数接受 2 个参数，第一个参数为需要被延迟执行的函数，
+ * 第二个参数为延迟执行的时间。具体实现代码如下：
+ */
+
+let throttle = function(fn, interval) {
+    let __self = fn, // 保存需要被延迟执行函数的引用
+        timer, // 定时器
+        firstTime = true; // 是否第一次调用
+
+        return function() {
+            let args = arguments;
+            __me = this;
+
+            if ( firstTime ) {  // 如果是第一次调用，不需要延迟执行
+                __self.apply(__me, args);
+                return firstTime = false;
+            }
+            if ( timer ) {  // 如果定时器还在，说明前一次延迟执行还没有完成
+                return false;
+            }
+
+            timer = setTimeout(() => { // 延迟一段时间执行
+                clearTimeout(timer);
+                timer = null;
+                __self.apply(__me, args);
+            }, interval ?? 500);
+        };
+};
+
+window.onresize = throttle(function() {
+    console.log(1);
+}, 500);
+
+
+// 4. 分时函数
+// 工作分批进行
+
+
+//5. 惰性加载函数
+// 在 Web 开发中，因为浏览器之间的实现差异，一些嗅探工作总是不可避免。比如我们需要一个在各个浏览器中能够通用的事件绑定函数 addEvent，
