@@ -181,3 +181,64 @@ var extent = new Extent();
 
 // 手动讲这些变量设为null
 
+
+
+//闭包实现模块模式
+// 1. 必须有外部的封闭函数，该函数必须至少被调用一次（每次调用都会创建一个新的模块实例）
+// 2. 封闭函数必须返回至少一个内部函数，这样内部函数才能在私有作用域中形成闭包，并且可以访问或者修改私有属性
+
+
+let MyModules = (function() {
+    let modules = {};
+
+    function define(name, deps, impl) {
+        for (let i = 0; i < deps.length; i++) {
+            deps[i] = modules[deps[i]];
+        }
+        modules[name] = impl.apply(impl, deps);
+    }
+
+    function get(name) {
+        return modules[name];
+    }
+
+    return {
+        define,
+        get
+    }
+})();
+
+/**
+ * 这段代码的核心是 modules[name] = impl.apply(impl, deps)。
+ * 为了模块的定义引入了包装函数（可以传入任何依赖），
+ * 并且将返回值，也就是模块的 API，储存在一个根据名字来管理的模块列表中。
+ */
+
+MyModules.define('bar', [], function() {
+    function hello(who) {
+        return 'Let me introduce: ' + who;
+    }
+    
+    return {
+        hello
+    }
+});
+
+MyModules.define('foo', ["bar"], function(bar) {
+    var hungry = 'hippo';
+
+    function awesome() {
+        console.log( bar.hello( hungry ).toUpperCase() );
+    }
+
+    return {
+        awesome
+    };
+});
+
+var bar = MyModules.get( "bar" );
+var foo = MyModules.get( "foo" );
+console.log(
+    bar.hello( "hippo" )
+); // Let me introduce: hippo
+foo.awesome(); // LET ME INTRODUCE: HIPPO
