@@ -149,3 +149,59 @@ alert ( a === b );
 把负责管理单例的逻辑移到了代理类 proxySingletonCreateDiv 中。这样一来，CreateDiv 就变成了
 一个普通的类，它跟 proxySingletonCreateDiv 组合起来可以达到单例模式的效果。
  */
+
+
+// 确保只要一个实例，并提供全局访问
+//!important => 减少全局变量的使用
+// 下面是几种可以相对减少全局变量带来的命名污染
+
+//1. 使用命名空间
+
+let namespace1 = {
+    a() {
+        alert(1);
+    },
+    b() {
+        alert(2);
+    }
+}
+// a & b 都是namespace1的属性
+
+let MyApp = {};
+
+MyApp.namespace = function( name ) {
+    let parts = name.split('.');
+    let current = MyApp;
+    for (let i in parts) {
+        if (!current[parts[i]]) {
+            current[parts[i]] = {};
+        }
+        current = current[parts[i]];
+    }
+};
+
+MyApp.namespace('event');
+MyApp.namespace('dom.style');
+console.dir( MyApp );
+
+// equal to
+let MyApp = {
+    event: {},
+    dom: {
+        style: {}
+    }
+}
+
+// 2. 使用闭包封装私有变量
+let user = (function() {
+    let __name = 'sven',
+        __age = 20;
+
+    return {
+        getUserInfo() {
+            return __name + '-' + __age;
+        }
+    }
+})()
+
+// 约定私有变量__name 和__age，它们被封装在闭包产生的作用域中
