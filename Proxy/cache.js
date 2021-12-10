@@ -22,7 +22,7 @@ let proxyMult = (function() {
     let cache = {};
     return function filteredFn(...args) {
         let argsStr = args.join(',');
-        if (argsStr in cache) {
+        if (Reflect.has(cache, argsStr)) {
             return cache[argsStr];
         }
         return cache[argsStr] = mult.apply(this, args); // 绑定this，并且可以传入不确定个数参数
