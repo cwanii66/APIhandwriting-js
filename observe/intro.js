@@ -125,3 +125,24 @@ let installEvent = function(obj) {
         obj[i] = _event[i];
     }
 };
+
+
+//remove event we've subscribed
+_event.remove = function(key, fn) { //remove 和 subscribe 相对应
+    let fns = this.clientList[key];
+    if (!fns) {
+        return {
+            msg: 'Not Found!'
+        }
+    }
+    if (!fn) { // 如果没有传入具体的回调函数，则表示需要取消key对应消息的所有订阅
+        fns && (fns.length = 0);
+    } else {
+        for (let l = fns.length - 1; l >= 0; l--) { //反向遍历订阅的回调函数
+            let _fn = fns[l];
+            if (_fn === fn) {
+                fns.splice(l, 1); // 删除订阅者的回调函数
+            }
+        }
+    }
+};
