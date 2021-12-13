@@ -33,3 +33,5 @@ Event.create('namespace2').trigger('click', 2);
 
 // 具体代码实现
 // 见global.js
+
+// 总结
