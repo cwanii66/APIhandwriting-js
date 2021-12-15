@@ -57,7 +57,7 @@ class AddSubMenuCommand {
 class DelSubMenuCommand {
     constructor(receiver) {
         this.receiver = receiver;
-    } 
+    }
     execute() {
         this.receiver.del();
     }
@@ -74,4 +74,31 @@ setCommand(button2, addSubMenuCommand);
 setCommand(button3, delSubMenuCommand);
 
 // 以上就是传统面向对象的设计
+
+// at javascript
+// 所谓的命令模式，看起来就是给对象的某个方法取了 execute 的名字。
+const bindClick = function(button, func) {
+    button.onclick = func;
+};
+
+const MenuBar = {
+    refresh() {
+        console.log('refresh');
+    }
+};
+const SubMenu = {
+    add() {
+        // ...
+    },
+    del() {
+        // ... 
+    }
+};
+
+bindClick(button1, MenuBar.refresh);
+
+
+//命令模式的由来，其实是回调（callback）函数的一个面向对象的替代品。
+
+
 
