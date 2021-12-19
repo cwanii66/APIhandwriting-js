@@ -34,7 +34,7 @@ const Folder = function(name) {
                     files.splice(l, 1);
                 }
             }
-        }
+        },
     };
 };
 
