@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Demo</title>
+</head>
+<body>
+    选择颜色: <select name="shop-select" id="colorSelect">
+                <option value="">请选择</option>
+                <option value="red">红色</option>
+                <option value="blue">蓝色</option>
+            </select> 
+    选择内存: <select id="memorySelect">
+                <option value="">请选择</option>
+                <option value="32G">32G</option>
+                <option value="16G">16G</option>
+            </select> 
+            <!-- 加了内存dom之后对象之间的联系变得更复杂了，耦合度高，让每一次修改都不容易 -->
+
+    输入购买数量: <input type="text" id="numberInput" /> <br />
+
+    您选择了颜色: <div id="colorInfo"></div> <br />
+    您选择了内存: <div id="memoryInfo"></div><br />
+    您输入了数量: <div id="numberInfo"></div> <br />
+
+    <button id="nextBtn" disabled="true">请选择手机颜色和购买数量</button>
+
+    <script src="./shop.js"></script>
+</body>
+</html>
