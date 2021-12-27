@@ -155,3 +155,35 @@ light.init();
  * 实际上这是使用了委托的效果。
  */
 
+// 16.3 状态模式的通用结构
+
+// Light => Context
+// 在Context 里创建每一个状态类的实例对象
+// context 将持有这些状态对象的引用，以便把请求委托给状态对象
+
+
+// 16.4 缺少抽象类的变通方法
+
+/**
+ * 如果我们编写一个状态子类时，
+ * 忘记了给这个状态子类实现 buttonWasPressed 方法，
+ * 则会在状态切换的时候抛出异常。
+ * 因为 Context 总是把请求委托给状态对象的 buttonWasPressed 方法。
+ */
+
+// 这里建议的解决方案跟《模板方法模式》中一致，
+// 让抽象父类的抽象方法直接抛出一个异常，这个异常至少会在程序运行期间就被发现：
+const State = function() {};
+State.prototype.buttonWasPressed = function() {
+    throw new Error('父类的buttonWasPressed方法必须背重写');
+};
+const SuperStrongLightState = function(light) {
+    this.light = light;
+};
+SuperStrongLightState.prototype = new State(); // 继承抽象父类
+SuperStrongLightState.prototype.buttonWasPressed = function() { // 重写buttonWasPressed 方法
+    console.log('关灯');
+    this.light.setState(this.light.offLightState);
+}
+
+
