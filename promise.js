@@ -4,7 +4,7 @@
 
 class TrackablePromise extends Promise {
     constructor(executor) {
-        const notifyHandlers = [];
+        const notifyHandlers = []; // 记录每段notify状态
 
         super((resolve, reject) => {
             return executor(resolve, reject, (status) => { // notify
@@ -29,3 +29,11 @@ let p = new TrackablePromise((resolve, reject, notify) => {
         }
     })(5); // 5 次递归地设置1000ms的超时，每个超时回调都会调用notify() 并传入状态值
 });
+
+p.notify((x) => setTimeout(console.log, 0, 'progress:', x));
+p.then(() => setTimeout(console.log, 0, 'completed'));
+
+
+// summary
+// 改变构造器添加notify函数作为参数( 希望notify 以怎样的形式进行)， 提供notifyhandlers 属性，增加notify 原型方法
+// 实际上通知的知性逻辑在 executor 的notify 参数 中
