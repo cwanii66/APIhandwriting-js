@@ -57,3 +57,121 @@ console.log(instanceOF({}, Fn))
 console.log(instanceOF(null, Fn))
 console.log(instanceOF(1, Fn))
 console.log(instanceOF(function a() {}, Function))
+
+
+// Simple Promise
+class MyPromise {
+    constructor(executor) {
+        this.value = undefined;
+        this.status = 'pending';
+        this.successQueue = [];
+        this.failureQueue = [];
+        const resolve = () => {
+            const doResolve = (value) => {
+                if (this.status === 'pending') {
+                    this.status = 'fulfilled';
+                    this.value = value;
+
+                    while(this.successQueue.length) {
+                        const cb = this.successQueue.shift();
+                        cb && cb(this.value);
+                    }
+                }
+            }
+            setTimeout(doResolve, 0);
+        };
+        const reject = () => {
+            const doReject = (value) => {
+                if (this.status === 'pending') {
+                    this.status = 'failure';
+                    this.value = value;
+
+                    while(this.failureQueue.length) {
+                        const cb = this.failureQueue.shift();
+                        cb && cb(this.value);
+                    }
+                }
+            };
+
+            setTimeout(doReject, 0);
+        };
+
+        executor(resolve, reject);
+    }
+
+    then(fulfill = (value) => value, failure = (value) => value) {
+        return new MyPromise((resolve, reject) => {
+            const fulfilledFunc = (value) => {
+                try {
+                    const result = fulfill(value);
+                    result instanceof MyPromise ? result.then(resolve, reject) : resolve(result);
+                } catch(error) {
+                    reject(error);
+                }
+            };
+
+            const failureFunc = (value) => {
+                try {
+                    const result = failure(value);
+                    result instanceof MyPromise ? result.then(resolve, reject) : resolve(result);
+                } catch(error) {
+                    reject(error);
+                }
+            };
+
+            if (this.status === 'pending') {
+                this.successQueue.push(fulfilledFunc);
+                this.failureQueue.push(failureFunc);
+            } else if (this.status === 'fulfilled') {
+                fulfill(this.value);
+            } else {
+                failure(this.value);
+            }
+        });
+    }
+    catch() {
+        // pending
+    }
+}
+// test MyPromise
+const promise = new MyPromise((resolve, reject) => {
+    setTimeout(resolve, 1000);
+    setTimeout(reject, 2000);
+});
+promise
+  .then(() => {
+    console.log('2_1')
+    const newPro = new MyPromise((resolve, reject) => {
+      console.log('2_2')
+      setTimeout(reject, 2000)
+    })
+    console.log('2_3')
+    return newPro
+  })
+  .then(
+    () => {
+      console.log('2_4')
+    },
+    () => {
+      console.log('2_5')
+    }
+  )
+  
+promise
+  .then(
+    data => {
+      console.log('3_1')
+      throw new Error()
+    },
+    data => {
+      console.log('3_2')
+    }
+  )
+  .then(
+    () => {
+      console.log('3_3')
+    },
+    e => {
+      console.log('3_4')
+    }
+  )
