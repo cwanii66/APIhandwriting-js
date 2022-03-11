@@ -244,8 +244,83 @@ function compose(...fn) {
         };
     }, (currentFn) => currentFn);
 }
+function compose(baseFn, ...fn) {
+    return fn.reduce((accumulator, currentFn) => {
+        return (...args) => accumulator(currentFn(...args)); // merge to accumulator, push current forward
+    }, baseFn); 
+}
 
 
+// simple create
+const create = (prop, props) => {
+    if (![ 'object', 'function' ].includes(typeof prop)) {
+        throw new TypeError(`Object prototype may only be an Object or null: ${prop}`);
+    }
 
+    // build constructor
+    const Ctor = function() {};
+    // assign prototype
+    Ctor.prototype = prop;
+    // create instance
+    const obj = new Ctor();
+    // support second param
+    if (props) {
+        Object.defineProperties(obj, props);
+    }
+    // support null
+    if (prop === null) {
+        obj.__proto__ = null;
+    }
 
+    return obj;
+};
+// 1. usual create
+const person = {
+    showName() {
+        console.log(this.name);
+    }
+};
+const me = Object.create(person);
+const me2 = create(person);
+me.name = 'chris';
+me2.name = 'wong';
+
+me.showName();
+me2.showName();
+
+// 2. null
+const emptyObj = Object.create(null);
+const emptyObj2 = create(null);
+
+console.log(emptyObj);
+console.log(emptyObj2); // null
+
+// 3. propertiesObject params
+const props = {
+    // foo ==> data attribute
+    foo: {
+        writable: true,
+        configurable: true,
+        value: 'hello'
+    },
+    // bar ==> accessor property
+    bar: {
+        configurable: true,
+        get() { return 'this is getter'; },
+        set(value) {
+            console.log(`setting ${o.bar} to ${value}`);
+        }
+    }
+};
+
+let o = Object.create(Object.prototype, props);
+let o2 = create(Object.prototype, props);
+o.bar = 'chris'
+o2.bar = 'wong'
+
+console.log(o.foo)
+console.log(o.bar)
+
+console.log(o2.foo)
+console.log(o2.bar)
 
