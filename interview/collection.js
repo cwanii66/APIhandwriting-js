@@ -220,4 +220,32 @@ Person.prototype.showInfo = function() {
 let person1 = _new(Person, 'chris', 'man');
 console.log(person1);
 
+// compose
+// usage
+function fn1(x) {
+    return x + 1;
+}
+function fn2(x) {
+    return x + 2;
+}
+function fn3(x) {
+    return x + 3;
+}
+function fn4(x) {
+    return x + 4;
+}
+const fn5 = compose(fn1, fn2, fn3, fn4);
+console.log(fn5(1));
+// compose achievement
+function compose(...fn) {
+    return fn.reduce((result, currentFn) => {
+        return (...args) => {
+            return result(currentFn(...args));
+        };
+    }, (currentFn) => currentFn);
+}
+
+
+
+
 
