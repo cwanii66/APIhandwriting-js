@@ -66,6 +66,7 @@ class MyPromise {
         this.status = 'pending';
         this.successQueue = [];
         this.failureQueue = [];
+        // private function
         const resolve = () => {
             const doResolve = (value) => {
                 if (this.status === 'pending') {
@@ -175,3 +176,48 @@ promise
       console.log('3_4')
     }
   )
+
+// simple new
+/**
+ * execution of new
+ * 1. create a new Object
+ * 2. the __proto__ of the object point to the prototype of constructor
+ * 3. execute constructor and add proterties & methods to the new Object
+ * 4. return the object
+ */
+
+const _new = function(func, ...args) {
+    if (typeof func !== 'function') {
+        throw 'the first argument should be a function';
+    }
+    // create (simply get the copy of func.prototype)
+    // let obj = Object.create(func.prototype); 
+    let Ctor = function() {};
+    Ctor.prototype = func.prototype;
+    Ctor.prototype.constructor = func;
+    
+    let obj = new Ctor();
+
+    let result = func.apply(obj, args);
+    
+    if (typeof result === 'object'
+            && 
+        result !== null 
+            || 
+        typeof result === 'function') {
+            return result;
+    } else {
+        return obj;
+    }
+};
+const Person = function(name, sex) {
+    this.name = name;
+    this.sex = sex;
+};
+Person.prototype.showInfo = function() {
+    console.log(this.name, this.sex);
+};
+let person1 = _new(Person, 'chris', 'man');
+console.log(person1);
+
+
