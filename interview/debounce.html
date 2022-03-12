@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debounce</title>
+</head>
+<body>
+    <input type="text" id="input" />
+    
+    <script>
+        const $input = document.querySelector('#input');
+        // debounce: a sort of comprehension
+        // computer sleeping time, 10 min for example
+        // it will never sleep while using(shut down a timer ahead frequently, open up a new timer)
+        // screen become dark after 10 min we don't use
+        const debounce = function(func, delay) {
+            let timer = null;
+            
+            return function(...args) {
+                clearTimeout(timer);
+
+                timer = setTimeout(() => {
+                    func.apply(this, args);
+                }, delay);
+            };
+        };
+        const showName = debounce(function(name) {
+            console.log($input.value, this, name)
+        }, 500);
+
+        $input.addEventListener('input', (e) => {
+            showName.call({ name: 'chris wong' }, 'cwluvani');
+        });
+
+    </script>
+</body>
+</html>
