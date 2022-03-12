@@ -15,11 +15,15 @@
         // computer sleeping time, 10 min for example
         // it will never sleep while using(shut down a timer ahead frequently, open up a new timer)
         // screen become dark after 10 min we don't use
+
+        // event executes after 500ms
+        // continuous event will clearTimeout and recount the delay
         const debounce = function(func, delay) {
             let timer = null;
             
             return function(...args) {
-                clearTimeout(timer);
+                if (timer)
+                    clearTimeout(timer);
 
                 timer = setTimeout(() => {
                     func.apply(this, args);
