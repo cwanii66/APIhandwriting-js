@@ -58,7 +58,7 @@ Promise.mySecondPromiseAll = promises => {
                 reject(err);
             }
         };
-
+        // start response
         for (let index = 0, value; value = promises[index++]; ) {
             response(index, value);
         }
