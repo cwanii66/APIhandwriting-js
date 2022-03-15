@@ -17,8 +17,3 @@ function New(func) {
 	return res;
 }
 
-let obj = New(A, 1, 2);
-//equals to 
-
-let obj = new A(1, 2);
-
