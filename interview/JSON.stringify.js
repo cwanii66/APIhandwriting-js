@@ -56,6 +56,35 @@ const jsonstringify = (data) => {
 
         return String(result);
     } else if (type === 'object') {
-        
+        // include toJSON() method, what should be serialized
+        // Date use toJSON(), transform it to string(just like Date.toISOString()), as string
+        if (typeof data.toJSON === 'function') {
+            return jsonstringify(data.toJSON());
+        } else if (Array.isArray(data)) {
+            let result = data.map(it => {
+                return commonKeys1.includes(typeof it) ? 'null' : jsonstringify(it);
+            });
+
+            return `[${result}]`.replace(/'/g, '"');
+        } else {
+            // boolean, number, string --> wrapper object will be translated to primitive value
+            if (['boolean', 'number'].includes(getType(data))) {
+                return String(data);
+            } else if (getType(data) === 'string') {
+                return '"' + data + '"';
+            } else {
+                let result = [];
+                // Map/Set/WeakMap/WeakSet/ etc. , serialized to enum
+                Object.keys(data).forEach(key => {
+                    if (typeof key !== 'symbol') {
+                        const value = data[key];
+                        if (!commonKeys1.includes(typeof value)) {
+                            result.push(`"${key}":${jsonstringify(value)}`);
+                        }
+                    }
+                });
+                return `{${result}}`.replace(/'/, '"');
+            }
+        }
     }
 };
