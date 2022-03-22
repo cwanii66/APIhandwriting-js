@@ -45,4 +45,7 @@ Function.prototype.uncurrying = function() {
     return function(...args) {
         return Reflect.apply(Function.prototype.call, self, args); // 对 call 以 apply的方式调用
     };
+
+    // return this.call.bind(this);
+    // return Function.prototype.call.apply(self, args);
 };
