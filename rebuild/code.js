@@ -50,7 +50,7 @@ const paging = function( currPage ){
 }; 
 
 // jump 在每个条件分支都出现了
-const paging = function(currPage) {
+const paging2 = function(currPage) {
     if (currPage === 0) {
         currPage = 0;
     } else if (currPage >= totalPage) {

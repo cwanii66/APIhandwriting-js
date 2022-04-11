@@ -77,3 +77,34 @@ Promise.mySecondPromiseAll([ p1, p2, p4 ]).then((res) => {
   }).catch((err) => {
     console.log('err', err)
   })
+
+/**
+ * 
+ * @param {*} promises
+ * @returns {*} resolved promises
+ */
+
+Promise.promiseAll = function(promises) {
+    return new Promise((resolve, reject) => {
+        if (!Array.isArray(promises)) return reject('Promise.all(/** array type **/)');
+
+        const resolvedResult = [],
+            promisesLength = promises.length;
+        let counter = 0;
+
+        if (promisesLength === 0) return resolve([]);
+        
+        promises.forEach((promise, index) => {
+            Promise.resolve(promise).then(res => {
+                counter++;
+                resolvedResult[index] = res;
+
+                if (counter === promisesLength) {
+                    resolve(resolvedResult);
+                }
+            })
+            .catch(reject);
+        });
+
+    });
+}
