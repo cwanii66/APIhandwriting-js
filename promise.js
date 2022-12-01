@@ -37,3 +37,20 @@ p.then(() => setTimeout(console.log, 0, 'completed'));
 // summary
 // 改变构造器添加notify函数作为参数( 希望notify 以怎样的形式进行)， 提供notifyhandlers 属性，增加notify 原型方法
 // 实际上通知的执行逻辑在 executor 的notify 参数 中
+
+// -- Simple promiseAll
+function promiseAll(array) {
+    return new Promise((resolve, reject) => {
+        const result = []
+        let count = 0
+        if (!Array.isArray(array)) reject('need array...')
+        array.forEach(p => {
+            Promise.resolve(p)
+                .then(v => {
+                    result.push(v)
+                    count++
+                    if (count === array.length) return resolve(result)
+                })
+        })
+    })
+}
